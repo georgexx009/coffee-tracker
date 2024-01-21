@@ -1,16 +1,17 @@
 import styles from './modal-form-recipe.css?inline'
 
 class ModalFormRecipe extends HTMLElement {
-  shadow: ShadowRoot
-
   constructor() {
+    // set up initial state and detault values
+    // NOT - cause observable side effects (adding childrens)
     super()
+  }
 
-    const shadow = this.attachShadow({ mode: 'open' })
-    shadow.innerHTML = `
+  connectedCallback() {
+    this.innerHTML = `
       <div class="modal-form-recipe">
         <div class="form">
-          <h3>New Recipe - ${this.getAttribute('id')}</h3>
+          <h3>New Recipe</h3>
           
           <form id="form-recipe">
             <label for="input-title">Title</label>
@@ -26,32 +27,18 @@ class ModalFormRecipe extends HTMLElement {
       </div>
     `
 
-    const stylesElement = document.createElement('style')
-    stylesElement.textContent = styles
-    shadow.appendChild(stylesElement)
-    this.shadow = shadow
-  }
+    const inputTitle = this.querySelector('#input-title') as HTMLInputElement
+    const descriptionInput = this.querySelector('#input-description') as HTMLInputElement
+    const submitBtn = this.querySelector('#btn-submit') as HTMLButtonElement
+    const btnCancel = this.querySelector('#btn-cancel') as HTMLInputElement
+    const recipesContainer = document.querySelector('#recipes')
 
-  connectedCallback() {
-    const inputTitle = this.shadow.querySelector('#input-title') as HTMLInputElement
-    const titleVal = this.getAttribute('title')
-    if (titleVal) {
-      inputTitle.value = titleVal
-    }
-
-    const descriptionInput = this.shadow.querySelector('#input-description') as HTMLInputElement
-    const descriptionVal = this.getAttribute('description')
-    if (descriptionVal) {
-      descriptionInput.value = descriptionVal
-    }
-
-    const submitBtn = this.shadow.querySelector('#btn-submit') as HTMLButtonElement
+    inputTitle.value = this.getAttribute('title')!
+    descriptionInput.value = this.getAttribute('description')!
     submitBtn.disabled = true
-    const btnCancel = this.shadow.querySelector('#btn-cancel') as HTMLInputElement
 
     // # add handlers
-    const recipesContainer = document.querySelector('#recipes')
-    this.shadow.querySelector('#form-recipe')?.addEventListener('submit', event => {
+    this.querySelector('#form-recipe')?.addEventListener('submit', event => {
       event.preventDefault()
       const recipeID = this.getAttribute('id')
       if (recipeID) {
@@ -80,10 +67,14 @@ class ModalFormRecipe extends HTMLElement {
     }
     inputTitle.addEventListener('input', checkInput)
     descriptionInput.addEventListener('input', checkInput)
+
+    const stylesElement = document.createElement('style')
+    stylesElement.textContent = styles
+    this.appendChild(stylesElement)
   }
 
   closeModal() {
-    const modal = this.shadow.querySelector('.modal-form-recipe')!
+    const modal = this.querySelector('.modal-form-recipe')!
     modal.remove()
   }
 }

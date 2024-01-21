@@ -1,35 +1,34 @@
 import cardStyles from './card.css?inline'
 
 export class CardRecipe extends HTMLElement {
-  private ID: number = 0
   static get observedAttributes() {
     return ['title', 'description']
   }
 
   constructor() {
     super()
-    this.ID = 0
   }
 
   connectedCallback() {
-    const shadow = this.attachShadow({ mode: 'open' })
-    const styles = document.createElement('style')
-    shadow.appendChild(styles)
+    this.innerHTML = `
+      <div class="card">
+        <h2></h2>
+        <p></p>
+        <div>
+          <button>update</button>
+          <button>delete</button>
+        </div>
+      </div> 
+    `
 
-    const idLabel = document.createElement('span')
-    idLabel.textContent = this.ID.toString()
+    const header = this.querySelector('h2')!
+    const description = this.querySelector('p')!
+    const buttons = Array.from(this.querySelectorAll('button'))
+    const updateBtn = buttons.find(btn => btn.textContent === 'update')!
+    const deleteBtn = buttons.find(btn => btn.textContent === 'delete')!
 
-    const header = document.createElement('h2')
     header.textContent = this.getAttribute('title') || 'title'
-
-    const description = document.createElement('p')
     description.textContent = this.getAttribute('description') || 'description'
-
-    const controls = document.createElement('div')
-    const updateBtn = document.createElement('button')
-    const deleteBtn = document.createElement('button')
-    updateBtn.textContent = 'update'
-    deleteBtn.textContent = 'delete'
 
     updateBtn.addEventListener('click', () => {
       this.update(header.textContent!, description.textContent!)
@@ -41,19 +40,9 @@ export class CardRecipe extends HTMLElement {
       cardToRemove?.remove()
     })
 
-    controls.appendChild(updateBtn)
-    controls.appendChild(deleteBtn)
-
-    const container = document.createElement('div')
-    container.className = 'card'
-    container.appendChild(idLabel)
-    container.appendChild(header)
-    container.appendChild(description)
-    container.appendChild(controls)
-
-    shadow.appendChild(container);
-
+    const styles = document.createElement('style')
     styles.textContent = cardStyles
+    this.appendChild(styles)
   }
 
   update(title: string, description: string) {
